@@ -2,7 +2,7 @@
 
 Discord rich presence for VLC media player.
 
-A fork of [vlc/rpc-discord-rpc](https://github.com/vlc-rpc/vlc-discord-rpc) (Originally [Pigpog/vlc-discord-rpc](https://github.com/Pigpog/vlc-discord-rpc)), rewritten in TypeScript and refactored for my own personal preferences and usage.
+A fork of [vlc-rpc/rpc-discord-rpc](https://github.com/vlc-rpc/vlc-discord-rpc) (Originally [Pigpog/vlc-discord-rpc](https://github.com/Pigpog/vlc-discord-rpc)), rewritten in TypeScript and refactored for my own personal preferences and usage.
 
 In addition to the original features, I've added movie and anime presence support, while also expanding on what the presence displays
 
