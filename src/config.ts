@@ -12,9 +12,12 @@ const vlcPath = "";
 
 // Settings
 const richPresenseSettings = {
-  id: "",
+  /** By default this will be displayed as "VLC Media Player".
+   * If you wish to change it, create a new application at https://discordapp.com/developers/applications/ and paste the client ID here.
+   */
+  id: "1102445158341034135",
   updateInterval: 500,
-  removeAfter: 5000,
+  removeAfter: 0,
 };
 
 // Default icons. Change if you would like.
@@ -30,6 +33,16 @@ const spotify = {
   clientSecret: "",
 };
 
+// Must fill these out for movie posters
+const TMDb = {
+  apiKey: "",
+};
+
+// Must fill these out for anime posters
+const myAnimeList = {
+  clientID: "",
+};
+
 // Local VLC Config
 const vlcConfig = {
   password: "",
@@ -41,4 +54,14 @@ const vlcConfig = {
 const logUpdates = false;
 
 // Modules to load
-module.exports = { platformDefaults, vlcPath, richPresenseSettings, vlcConfig, spotify, iconNames, logUpdates };
+export default {
+  platformDefaults,
+  vlcPath,
+  richPresenseSettings,
+  vlcConfig,
+  spotify,
+  TMDb,
+  myAnimeList,
+  iconNames,
+  logUpdates,
+};

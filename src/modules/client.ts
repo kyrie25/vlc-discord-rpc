@@ -1,7 +1,7 @@
-const RPC = require("discord-rpc");
-const config = require("../Storage/config.js");
-const diff = require("./status.js");
-const format = require("./rpc-format.js");
+import * as RPC from "discord-rpc";
+import config from "../config.js";
+import diff from "./status.js";
+import format from "./rpc-format.js";
 
 const client = new RPC.Client({ transport: "ipc" });
 let awake = true;
@@ -20,7 +20,11 @@ async function update() {
     } else if (awake) {
       if (status.state !== "playing") {
         timeInactive += config.richPresenseSettings.updateInterval;
-        if (timeInactive >= config.richPresenseSettings.sleepTime || status.state === "stopped") {
+        if (
+          (config.richPresenseSettings.removeAfter !== 0 &&
+            timeInactive >= config.richPresenseSettings.removeAfter) ||
+          status.state === "stopped"
+        ) {
           console.log("VLC not playing; going to sleep.", true);
           awake = false;
           client.clearActivity();
@@ -35,7 +39,7 @@ async function update() {
 }
 
 client.on("ready", () => {
-  console.log("Logged in as", client.user.username);
+  console.log("Logged in as", client.user!.username);
 });
 
 async function connectToDiscord() {
@@ -43,9 +47,11 @@ async function connectToDiscord() {
     console.log("Connecting to Discord...");
     await client.login({ clientId: config.richPresenseSettings.id });
     setInterval(update, config.richPresenseSettings.updateInterval);
-  } catch (error) {
+  } catch (error: any) {
     if (error.toString() === "Error: Could not connect") {
-      console.log("Failed to connect to Discord. Is your Discord client open? Retrying in 20 seconds...");
+      console.log(
+        "Failed to connect to Discord. Is your Discord client open? Retrying in 20 seconds..."
+      );
       // Retry login
       setTimeout(connectToDiscord, 20000);
     } else {

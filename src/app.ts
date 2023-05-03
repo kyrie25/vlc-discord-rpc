@@ -1,27 +1,29 @@
 // Require modules and configuations
-const { spawn } = require("child_process");
-const fs = require("fs");
-const config = require("./Storage/config.js");
+import { spawn } from "child_process";
+import * as fs from "fs";
+import config from "./config.js";
+import { randomPass } from "./utils.js";
 
-require("./Functions/client.js");
-
-// Function to generate a random password
-function randomPass() {
-  return Math.random().toString(36).slice(-8);
-}
+// Run the client
+import "./modules/client.js";
 
 // Generate a password if needed
-if (config.vlcConfig.password === "") {
-  config.vlcConfig.password = randomPass();
-}
+config.vlcConfig.password ||= randomPass();
 
 // If windows OS and default path cannot be found try other path
-if (process.platform == "win32" && !fs.existsSync(config.platformDefaults.win32)) {
+if (
+  process.platform == "win32" &&
+  !fs.existsSync(config.platformDefaults.win32)
+)
   config.platformDefaults.win32 = config.platformDefaults.winalt;
-}
 
 // If VLC path is not specified use the default
-const startCommand = config.vlcPath || config.platformDefaults[process.platform];
+const startCommand =
+  config.vlcPath ||
+  config.platformDefaults[
+    process.platform as keyof typeof config.platformDefaults
+  ];
+
 // Start the process
 const child = spawn(
   startCommand,
@@ -33,7 +35,7 @@ const child = spawn(
     "--http-password",
     config.vlcConfig.password,
     "--http-port",
-    config.vlcConfig.port,
+    String(config.vlcConfig.port),
   ],
   {
     stdio: "inherit",

@@ -1,6 +1,6 @@
 // Import the 'vlc.js' library and the configuration file
-const VLC = require("vlc.js");
-const config = require("../Storage/config.js");
+import * as VLC from "vlc.js";
+import config from "../config.js";
 
 // Create a new instance of the VLC client
 const VLCClient = new VLC.VLCClient(config.vlcConfig);
@@ -12,10 +12,11 @@ let lastStatus = {
   state: "",
   icon_url: "",
   time: 0,
+  volume: 0,
 };
 
 // Export a function that takes a callback as an argument
-module.exports = async (callback) => {
+export default async (callback) => {
   try {
     // Get the current status of VLC
     const status = await VLCClient.getStatus();
@@ -26,7 +27,9 @@ module.exports = async (callback) => {
       // Check if the current now playing track has changed
       if (meta.now_playing !== lastStatus.now_playing) {
         if (config.logUpdates && lastStatus.now_playing) {
-          console.log(`Track has changed from: ${lastStatus.now_playing} to ${meta.now_playing}`);
+          console.log(
+            `Track has changed from: ${lastStatus.now_playing} to ${meta.now_playing}`
+          );
         }
 
         lastStatus.now_playing = meta.now_playing;
@@ -35,28 +38,44 @@ module.exports = async (callback) => {
         // Check if the current filename has changed
       } else if (meta.filename !== lastStatus.filename) {
         if (config.logUpdates) {
-          console.log(`File has changed from: ${lastStatus.filename} to ${meta.filename}`);
+          console.log(
+            `File has changed from: ${lastStatus.filename} to ${meta.filename}`
+          );
         }
         lastStatus.filename = meta.filename;
         callback(status, true);
         // Check if the state (playing, paused, stopped) has changed
       } else if (status.state !== lastStatus.state) {
         if (config.logUpdates) {
-          console.log(`State has changed from: ${lastStatus.state} to ${status.state}`);
+          console.log(
+            `State has changed from: ${lastStatus.state} to ${status.state}`
+          );
         }
         lastStatus.state = status.state;
         callback(status, true);
         // Check if the time has changed by more than the update interval or if the time has gone backwards
-      } else if (status.time - (lastStatus.time + config.richPresenseSettings.updateInterval / 1000) > 3 || lastStatus.time > status.time) {
+      } else if (
+        status.time -
+          (lastStatus.time +
+            config.richPresenseSettings.updateInterval / 1000) >
+          3 ||
+        lastStatus.time > status.time
+      ) {
         if (config.logUpdates) {
-          console.log(`Time has changed from: ${lastStatus.time} to ${status.time}`);
+          console.log(
+            `Time has changed from: ${lastStatus.time} to ${status.time}`
+          );
         }
 
         callback(status, true);
         // Check if the volume has changed
       } else if (status.volume !== lastStatus.volume) {
         if (config.logUpdates && lastStatus.volume) {
-          console.log(`Volume has changed from: ${Math.round(lastStatus.volume / 2.56)}% to ${Math.round(status.volume / 2.56)}%`);
+          console.log(
+            `Volume has changed from: ${Math.round(
+              lastStatus.volume / 2.56
+            )}% to ${Math.round(status.volume / 2.56)}%`
+          );
         }
 
         lastStatus.volume = status.volume;
@@ -78,7 +97,7 @@ module.exports = async (callback) => {
     // // Update the last status object
     lastStatus.state = status.state;
     lastStatus.time = status.time;
-  } catch (err) {
+  } catch (err: any) {
     //  If there is an error connecting to VLC, log an error message and call the callback function with a stopped state
     if (err.code === "ECONNREFUSED") {
       console.log("Failed to reach VLC. Is it open?");
