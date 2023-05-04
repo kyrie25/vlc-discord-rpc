@@ -8,7 +8,7 @@ In addition to the original features, I've added movie and anime presence suppor
 
 ![image](https://i.imgur.com/VvTSTi7.png)
 ![image](https://i.imgur.com/E8RNVO2.png)
-![image](https://i.imgur.com/D4mqrwh.png)
+![image](https://i.imgur.com/cbCAixm.png)
 
 ## Setup
 

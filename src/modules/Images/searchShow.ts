@@ -51,12 +51,21 @@ export async function searchShow(showName: string, isFileName = false) {
       ? `Season ${season} | Episode ${episode}`
       : `Episode ${episode}`;
 
-    const buttons = [
+    let buttons = [
       {
         label: "View on TVmaze",
         url: show.url,
       },
     ];
+
+    if (show.externals?.imdb) {
+      buttons = [
+        {
+          label: "View on IMDb",
+          url: `https://www.imdb.com/title/${show.externals.imdb}`,
+        },
+      ];
+    }
 
     if (show.officialSite) {
       buttons.push({
