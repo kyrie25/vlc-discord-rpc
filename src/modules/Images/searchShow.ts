@@ -15,12 +15,12 @@ export async function searchShow(showName: string, isFileName = false) {
       showName = showName.replace(/s\d+/gi, "");
     }
 
-    const episodeNumberAndTitle = showName.match(/e?\d+( [\w ]+)?$/gi);
+    const episodeNumberAndTitle = showName.match(/e?\d+( [\w'" ]+)?$/gi);
     if (episodeNumberAndTitle) {
       episode = episodeNumberAndTitle[0].match(/\d+/)?.[0] || "";
 
-      episodeTitle = episodeNumberAndTitle[0].match(/ [\w ]+$/)?.[0] || "";
-      showName = showName.replace(/e?\d+(?: [\w ]+)?$/gi, "");
+      episodeTitle = episodeNumberAndTitle[0].match(/ [\w'" ]+$/)?.[0] || "";
+      showName = showName.replace(/e?\d+(?: [\w'" ]+)?$/gi, "");
     }
   }
   try {
@@ -51,24 +51,37 @@ export async function searchShow(showName: string, isFileName = false) {
       ? `Season ${season} | Episode ${episode}`
       : `Episode ${episode}`;
 
+    const buttons = [
+      {
+        label: "View on TVmaze",
+        url: show.url,
+      },
+    ];
+
+    if (show.officialSite) {
+      buttons.push({
+        label: "Official Site",
+        url: show.officialSite,
+      });
+    }
+
     if (isFileName) {
       return {
         state,
         details: show.name,
         largeImageKey: image,
-        largeImageText: `Rating: ${show.rating.average} ★`,
-        buttons: [
-          {
-            label: "View on TVmaze",
-            url: show.url,
-          },
-        ],
+        largeImageText: show.rating.average
+          ? `Rating: ${show.rating.average} ★`
+          : "",
+        buttons,
       };
     }
 
     return {
       largeImageKey: image,
-      largeImageText: `Rating: ${show.rating.average} ★`,
+      largeImageText: show.rating.average
+        ? `Rating: ${show.rating.average} ★`
+        : "",
       buttons: [
         {
           label: "View on TVmaze",

@@ -6,10 +6,6 @@ import { isMatchingTitle, processTitle } from "../../utils.js";
 const apiKey = config.TMDb.apiKey;
 
 export async function getMovie(title: string) {
-  if (!apiKey) {
-    console.log("No TMDb API key provided, skipping movie image");
-    return null;
-  }
   title = processTitle(title);
   try {
     const response = await axios.get(
@@ -31,9 +27,8 @@ export async function getMovie(title: string) {
     )
       return null;
 
-    if (movie.title !== movie.original_title) {
+    if (movie.title !== movie.original_title)
       movie.title = `${movie.title} (${movie.original_title})`;
-    }
 
     return {
       largeImageKey: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
@@ -44,7 +39,7 @@ export async function getMovie(title: string) {
         .replace(/^0\./, "")
         .replace(/\./g, ",")} views`,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

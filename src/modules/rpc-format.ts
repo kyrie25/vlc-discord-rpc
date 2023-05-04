@@ -9,6 +9,35 @@ import { getAnime } from "./Images/getAnime.js";
 import config from "../config.js";
 import { processPresence } from "../utils.js";
 
+const { TMDb, myAnimeList, spotify } = config;
+
+let logged = {
+  movie: false,
+  anime: false,
+  spotify: false,
+};
+
+async function fetchData(
+  reqs: Record<string, any>,
+  callback: (...params: any) => Promise<Record<string, any> | null>,
+  params: any[],
+  message: { type: string; msg: string }
+) {
+  if (Object.values(reqs).some((req) => !req)) {
+    if (!logged[message.type]) {
+      // Replace {0} with the requirement key that is null
+      const notice = message.msg.replace(
+        /{(\d)}/,
+        Object.keys(reqs).find((key) => !reqs[key])!
+      );
+      console.log(notice);
+      logged[message.type] = true;
+    }
+  }
+
+  return await callback(...params);
+}
+
 export default async (status: any) => {
   // Initialize variables
   let presence: Record<string, any> = {
@@ -62,8 +91,18 @@ export default async (status: any) => {
       presence.partySize = parseInt(meta.track_number, 10);
       presence.partyMax = parseInt(meta.track_total, 10);
     }
-    // Try to get the album art for the music
-    const album = await getAlbumArt(meta.album, meta.artist);
+
+    // Try to get album art for the music
+    const album = await fetchData(
+      { clientID: spotify.clientID, clientSecret: spotify.clientSecret },
+      getAlbumArt,
+      [meta.artist, meta.album],
+      {
+        type: "spotify",
+        msg: "No Spotify {0} provided, skipping Spotify presence",
+      }
+    );
+
     if (album) presence = { ...presence, ...album };
 
     // If the video is currently playing
@@ -72,15 +111,32 @@ export default async (status: any) => {
     presence.state = meta.now_playing;
   } else {
     try {
-      const movie = await getMovie(meta.title || meta.filename);
-      if (movie) {
-        presence = { ...presence, ...movie };
+      const anime = await fetchData(
+        { clientID: myAnimeList.clientID },
+        getAnime,
+        [meta.title || meta.filename],
+        {
+          type: "anime",
+          msg: "No MyAnimeList client ID provided, skipping anime presence",
+        }
+      );
+
+      if (anime) {
+        presence = { ...presence, ...anime };
         throw new Error("None");
       }
 
-      const anime = await getAnime(meta.title || meta.filename);
-      if (anime) {
-        presence = { ...presence, ...anime };
+      const movie = await fetchData(
+        { apiKey: TMDb.apiKey },
+        getMovie,
+        [meta.title || meta.filename],
+        {
+          type: "movie",
+          msg: "No TMDb API key provided, skipping movie presence",
+        }
+      );
+      if (movie) {
+        presence = { ...presence, ...movie };
         throw new Error("None");
       }
 
@@ -93,6 +149,7 @@ export default async (status: any) => {
       throw new Error("No data found");
     } catch (error: any) {
       if (error.message !== "None") {
+        console.error(error);
         presence.details = meta.filename;
         presence.state = meta.title || "Video";
       }

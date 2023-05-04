@@ -6,11 +6,6 @@ import { isMatchingTitle, processTitle } from "../../utils.js";
 const clientID = config.myAnimeList.clientID;
 
 export async function getAnime(title: string) {
-  if (!clientID) {
-    console.log("No MyAnimeList client ID provided, skipping anime image");
-    return null;
-  }
-
   let season = "";
   let episode = "";
   title = processTitle(title);
@@ -20,10 +15,10 @@ export async function getAnime(title: string) {
     title = title.replace(/s\d+/gi, "");
   }
 
-  if (title.match(/e?\d+(?: [\w ]+)?$/gi)) {
+  if (title.match(/e?\d+(?: [\w'" ]+)?$/gi)) {
     episode = title.match(/e?\d+/gi)?.[0] || "";
     if (episode[0].toLowerCase() === "e") episode = episode.slice(1);
-    title = title.replace(/e?\d+(?: [\w ]+)?$/gi, "");
+    title = title.replace(/e?\d+(?: [\w'" ]+)?$/gi, "");
   }
 
   try {
@@ -86,8 +81,7 @@ export async function getAnime(title: string) {
         },
       ],
     };
-  } catch (error) {
-    console.log(error);
+  } catch {
     return null;
   }
 }

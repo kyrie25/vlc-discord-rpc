@@ -12,11 +12,14 @@ const vlcPath = "";
 
 // Settings
 const richPresenseSettings = {
-  /** By default this will be displayed as "VLC Media Player".
+  /**
+   * By default this will be displayed as "VLC Media Player".
    * If you wish to change it, create a new application at https://discordapp.com/developers/applications/ and paste the client ID here.
    */
   id: "1102445158341034135",
   updateInterval: 500,
+  // How long to wait before removing the presence after VLC closes. (ms)
+  // 0 = Never remove
   removeAfter: 0,
 };
 

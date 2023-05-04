@@ -16,11 +16,6 @@ const credentials = Buffer.from(`${client_id}:${client_secret}`).toString(
 
 // Function to search for an album by name and retrieve its cover image
 export async function getAlbumArt(albumName: string, albumArtist: string) {
-  if (!client_id || !client_secret) {
-    console.log("Spotify client ID or client secret not set");
-    return null;
-  }
-
   try {
     // Make POST request to obtain an access token using the Client Credentials Flow
     const tokenResponse = await axios.post(
@@ -65,6 +60,7 @@ export async function getAlbumArt(albumName: string, albumArtist: string) {
       ],
     };
   } catch (error) {
+    console.error(error);
     return null;
   }
 }
