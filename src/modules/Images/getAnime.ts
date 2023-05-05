@@ -1,24 +1,35 @@
 import axios from "axios";
 
 import config from "../../config.js";
-import { isMatchingTitle, processTitle } from "../../utils.js";
+import {
+  episodeRegex,
+  isMatchingTitle,
+  processTitle,
+  seasonRegex,
+} from "../../utils.js";
 
 const clientID = config.myAnimeList.clientID;
 
 export async function getAnime(title: string) {
   let season = "";
   let episode = "";
+  let episodeTitle = "";
+
   title = processTitle(title);
 
-  if (title.match(/s\d+/gi)) {
-    season = title.match(/s\d+/gi)?.[0].slice(1) || "";
-    title = title.replace(/s\d+/gi, "");
+  const seasonMatch = title.match(seasonRegex);
+  if (seasonMatch) {
+    season = title.matchAll(seasonRegex).next().value[1];
+    title = title.replace(seasonRegex, "");
   }
 
-  if (title.match(/e?\d+(?: [\w'" ]+)?$/gi)) {
-    episode = title.match(/e?\d+/gi)?.[0] || "";
-    if (episode[0].toLowerCase() === "e") episode = episode.slice(1);
-    title = title.replace(/e?\d+(?: [\w'" ]+)?$/gi, "");
+  const episodeMatch = title.match(episodeRegex);
+  if (episodeMatch) {
+    episode = title.matchAll(episodeRegex).next().value[1];
+
+    const episodeTitleMatch = title.matchAll(episodeRegex).next().value[2];
+    if (episodeTitleMatch) episodeTitle = episodeTitleMatch.trim();
+    title = title.replace(episodeRegex, "");
   }
 
   try {
@@ -32,6 +43,7 @@ export async function getAnime(title: string) {
     });
 
     const animes = response.data.data[0]?.node;
+
     if (!animes) return null;
 
     const fetchAnime = await axios.get(
@@ -63,16 +75,18 @@ export async function getAnime(title: string) {
       anime.title = `${anime.title} (${anime.alternative_titles.ja})`;
     }
 
-    if (season && episode) {
-      anime.state = `Season ${season} | Episode ${episode}`;
-    } else if (episode) {
-      anime.state = `Episode ${episode}`;
-    }
+    anime.state = episodeTitle
+      ? `S${season}E${episode} | ${episodeTitle}`
+      : season
+      ? `Season ${season} | Episode ${episode}`
+      : episode
+      ? `Episode ${episode}`
+      : "";
 
     return {
       largeImageKey: anime.main_picture.large || anime.main_picture.medium,
       details: anime.title,
-      state: anime.state || undefined,
+      state: anime.state,
       largeImageText: `Rank ${anime.rank} | ${anime.mean} ★`,
       buttons: [
         {

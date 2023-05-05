@@ -6,7 +6,7 @@ A fork of [vlc-rpc/rpc-discord-rpc](https://github.com/vlc-rpc/vlc-discord-rpc) 
 
 In addition to the original features, I've added movie and anime presence support, while also expanding on what the presence displays
 
-![image](https://i.imgur.com/VvTSTi7.png)
+![image](https://i.imgur.com/jj6K79B.png)
 ![image](https://i.imgur.com/E8RNVO2.png)
 ![image](https://i.imgur.com/cbCAixm.png)
 

@@ -1,3 +1,7 @@
+export const seasonRegex = /(?:- ?)?(?:s|season )(\d+)/gi;
+
+export const episodeRegex = /(?:- ?)?(?:e|episode )?(\d+)( [\w'"\- ]+)?$/gi;
+
 // Function to generate a random password
 export function randomPass() {
   return Math.random().toString(36).slice(-8);
@@ -8,7 +12,7 @@ export function processTitle(title: string) {
     .replace(/ *[\(\[][\w~+\- ]+[\)\]] */g, "") // Remove anything in parentheses or brackets
     .replace(/[\(\[]?\d+p[\)\]]?/, "") // Remove the resolution
     .replace(/\.\w+$/, "") // Remove the file extension
-    .replace(/_|-/g, " ") // Replace underscores and dashes with spaces
+    .replace(/_/g, " ") // Replace underscores with spaces
     .replace(/ +/g, " ") // Replace multiple spaces with one
     .replace(/v\d+$/gi, "") // Remove the version number
     .trim();

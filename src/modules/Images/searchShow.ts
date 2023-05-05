@@ -1,4 +1,9 @@
-import { isMatchingTitle, processTitle } from "../../utils.js";
+import {
+  episodeRegex,
+  isMatchingTitle,
+  processTitle,
+  seasonRegex,
+} from "../../utils.js";
 
 import axios from "axios";
 
@@ -10,19 +15,22 @@ export async function searchShow(showName: string, isFileName = false) {
   if (isFileName) {
     showName = processTitle(showName);
 
-    if (showName.match(/s\d+/gi)) {
-      season = showName.match(/s\d+/gi)?.[0].slice(1) || "";
-      showName = showName.replace(/s\d+/gi, "");
+    const seasonMatch = showName.match(seasonRegex);
+    if (seasonMatch) {
+      season = showName.matchAll(seasonRegex).next().value[1];
+      showName = showName.replace(seasonRegex, "");
     }
 
-    const episodeNumberAndTitle = showName.match(/e?\d+( [\w'" ]+)?$/gi);
-    if (episodeNumberAndTitle) {
-      episode = episodeNumberAndTitle[0].match(/\d+/)?.[0] || "";
+    const episodeMatch = showName.match(episodeRegex);
+    if (episodeMatch) {
+      episode = showName.matchAll(episodeRegex).next().value[1];
 
-      episodeTitle = episodeNumberAndTitle[0].match(/ [\w'" ]+$/)?.[0] || "";
-      showName = showName.replace(/e?\d+(?: [\w'" ]+)?$/gi, "");
+      const episodeTitleMatch = showName.matchAll(episodeRegex).next().value[2];
+      if (episodeTitleMatch) episodeTitle = episodeTitleMatch.trim();
+      showName = showName.replace(episodeRegex, "");
     }
   }
+
   try {
     // Use the TVmaze API to search for the show by name
     const response = await axios(
@@ -30,9 +38,11 @@ export async function searchShow(showName: string, isFileName = false) {
     );
 
     // Get the first result (most relevant)
-    const show = response.data[0].show;
+    const show = response.data.find((show: any) =>
+      isMatchingTitle(show.show.name, showName)
+    )?.show;
 
-    if (!isMatchingTitle(show.name, showName)) return null;
+    if (!show) return null;
 
     // Use the TVmaze API to get the show's image URL
     const imageResponse = await axios(
@@ -49,7 +59,9 @@ export async function searchShow(showName: string, isFileName = false) {
       ? `S${season}E${episode} | ${episodeTitle}`
       : season
       ? `Season ${season} | Episode ${episode}`
-      : `Episode ${episode}`;
+      : episode
+      ? `Episode ${episode}`
+      : "";
 
     let buttons = [
       {

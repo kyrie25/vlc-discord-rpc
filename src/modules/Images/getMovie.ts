@@ -18,14 +18,13 @@ export async function getMovie(title: string) {
       }
     );
 
-    const movie = response.data.results[0];
-    if (!movie) return null;
+    const movie = response.data.results.find(
+      (movie: any) =>
+        isMatchingTitle(title, movie.title) ||
+        isMatchingTitle(title, movie.original_title)
+    );
 
-    if (
-      !isMatchingTitle(title, movie.title) &&
-      !isMatchingTitle(title, movie.original_title)
-    )
-      return null;
+    if (!movie) return null;
 
     if (movie.title !== movie.original_title)
       movie.title = `${movie.title} (${movie.original_title})`;
@@ -38,6 +37,12 @@ export async function getMovie(title: string) {
         .toString()
         .replace(/^0\./, "")
         .replace(/\./g, ",")} views`,
+      buttons: [
+        {
+          label: "View on TMDb",
+          url: `https://www.themoviedb.org/movie/${movie.id}`,
+        },
+      ],
     };
   } catch {
     return null;

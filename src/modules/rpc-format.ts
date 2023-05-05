@@ -35,7 +35,12 @@ async function fetchData(
     }
   }
 
-  return await callback(...params);
+  try {
+    return await callback(...params);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 export default async (status: any) => {
@@ -149,7 +154,6 @@ export default async (status: any) => {
       throw new Error("No data found");
     } catch (error: any) {
       if (error.message !== "None") {
-        console.error(error);
         presence.details = meta.filename;
         presence.state = meta.title || "Video";
       }
