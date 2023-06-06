@@ -15,6 +15,7 @@ export function processTitle(title: string) {
     .replace(/_/g, " ") // Replace underscores with spaces
     .replace(/ +/g, " ") // Replace multiple spaces with one
     .replace(/v\d+$/gi, "") // Remove the version number
+    .replace(/^-|-$/g, "") // Remove any trailing hyphens
     .trim();
 }
 

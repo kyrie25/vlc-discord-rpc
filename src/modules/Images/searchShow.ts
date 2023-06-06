@@ -12,9 +12,9 @@ export async function searchShow(showName: string, isFileName = false) {
   let episode = "";
   let episodeTitle = "";
 
-  if (isFileName) {
-    showName = processTitle(showName);
+  showName = processTitle(showName);
 
+  if (isFileName) {
     const seasonMatch = showName.match(seasonRegex);
     if (seasonMatch) {
       season = showName.matchAll(seasonRegex).next().value[1];
@@ -86,29 +86,14 @@ export async function searchShow(showName: string, isFileName = false) {
       });
     }
 
-    if (isFileName) {
-      return {
-        state,
-        details: show.name,
-        largeImageKey: image,
-        largeImageText: show.rating.average
-          ? `Rating: ${show.rating.average} ★`
-          : "",
-        buttons,
-      };
-    }
-
     return {
+      [isFileName ? "state" : ""]: state,
+      details: show.name,
       largeImageKey: image,
       largeImageText: show.rating.average
         ? `Rating: ${show.rating.average} ★`
         : "",
-      buttons: [
-        {
-          label: "View on TVmaze",
-          url: show.url,
-        },
-      ],
+      buttons,
     };
   } catch {
     return null;
